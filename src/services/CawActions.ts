@@ -4,8 +4,15 @@ import { Config } from "src/config";
 import { CawActionData } from "src/types/cawActions";
 import { BaseContractService } from "./BaseContract";
 
+type ProcessMultiActionParams = {
+  action: CawActionData[];
+  v: number[];
+  r: string[];
+  s: string[];
+}
+
 type ProcessActionParams = {
-  actions: CawActionData[];
+  action: CawActionData;
   v: number;
   r: string;
   s: string;
@@ -17,16 +24,33 @@ type ProcessActionParams = {
 */
 export class CawActionsService extends BaseContractService {
 
-  constructor(provider: Provider, signer: Signer) {
+  constructor(provider: Provider, signer: Signer, validatorId: number) {
     super(provider, signer, Config.contracts.CAW_NAME.abi, Config.contracts.CAW_NAME.address);
+    this.setValidatorId(validatorId);
+  }
+
+  async verifyActions(senderIds: number[], actionIds: string[]) {
+    const runner = this.contractRunner as any;
+    const actionValidities = await runner.verifyActions(senderIds, actionIds);
+
+    return actionValidities;
+  }
+
+  async proccessActions(params: ProcessMultiActionParams) {
+    const { actions, v, r, s } = params;
+    const runner = this.contractRunner as any;
+
+    const tx = await runner.processActions(this.validatorId, actions, v, r, s);
+    const receipt = await tx.wait();
+    return receipt;
   }
 
   async proccessAction(params: ProcessActionParams) {
 
-    const { actions, v, r, s } = params;
+    const { action, v, r, s } = params;
     const runner = this.contractRunner as any;
 
-    const tx = await runner.processAction(actions, v, r, s);
+    const tx = await runner.processAction(this.validatorId, action, v, r, s);
     const receipt = await tx.wait();
     return receipt;
   }

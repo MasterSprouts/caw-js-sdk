@@ -16,6 +16,9 @@ export abstract class BaseContractService {
   readonly signer: Signer;
   readonly contractRunner: BaseContract;
 
+  // CAW ID that will receive rewards when validating actions
+  validatorId?: number;
+
   constructor(provider: Provider, signer: Signer, abi: InterfaceAbi, address: Address) {
 
     this.apiKey = Config.INFURA_API_KEY;
@@ -33,4 +36,10 @@ export abstract class BaseContractService {
 
     this.contractRunner = this.contract.connect(this.signer);
   }
+
+  // Setter method to set the validatorId later
+  setValidatorId(id: number) {
+    this.validatorId = id;
+  }
 }
+

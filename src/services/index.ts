@@ -5,3 +5,4 @@ export * from './CawNamesMinter';
 export * from './MintableCaw';
 export * from './WalletSignature';
 export * from './WalletBalance';
+export * from './CawActions';
